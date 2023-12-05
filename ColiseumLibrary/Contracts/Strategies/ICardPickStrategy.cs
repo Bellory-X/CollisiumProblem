@@ -1,6 +1,6 @@
-﻿using ConsoleApp1.Nsu.ColiseumProblem.Contracts.Cards;
+﻿using ColiseumLibrary.Contracts.Cards;
 
-namespace ConsoleApp1.Nsu.ColiseumProblem.Contracts;
+namespace ColiseumLibrary.Contracts.Strategies;
 
 /// <summary>
 /// Стратегия выбора карты

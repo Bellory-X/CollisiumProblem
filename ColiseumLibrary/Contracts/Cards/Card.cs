@@ -1,4 +1,4 @@
-﻿namespace ConsoleApp1.Nsu.ColiseumProblem.Contracts.Cards;
+﻿namespace ColiseumLibrary.Contracts.Cards;
 
 /// <summary>
 /// Игральная карта
