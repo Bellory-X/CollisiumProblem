@@ -6,18 +6,8 @@ namespace FirstPlayerApi.Controllers;
 
 [ApiController]
 [Route("api/first")]
-public class HomeController : ControllerBase
+public class HomeController(PlayerService service) : ControllerBase
 {
-    private readonly PlayerService _service;
-
-    public HomeController(PlayerService service)
-    {
-        _service = service;
-    }
-    
     [HttpPost]
-    public async Task<int> GetCardNumber(Card[] request)
-    {
-        return await _service.GetCardNumber(request);
-    }
+    public async Task<int> GetCardNumber(Card[] request) => await service.GetCardNumber(request);
 }

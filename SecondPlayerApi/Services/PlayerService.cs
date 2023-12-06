@@ -3,17 +3,7 @@ using ColiseumLibrary.Contracts.Strategies;
 
 namespace SecondPlayerApi.Services;
 
-public class PlayerService
+public class PlayerService(ICardPickStrategy strategy)
 {
-    private readonly ICardPickStrategy _strategy;
-
-    public PlayerService(ICardPickStrategy strategy)
-    {
-        _strategy = strategy;
-    }
-    
-    public async Task<int> GetCardNumber(Card[] cards)
-    {
-        return await Task.Run(() => _strategy.Pick(cards));
-    }
+    public async Task<int> GetCardNumber(Card[] cards) => await Task.Run(() => strategy.Pick(cards));
 }
