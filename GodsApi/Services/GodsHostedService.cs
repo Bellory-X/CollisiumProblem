@@ -1,25 +1,21 @@
-﻿using System.Text;
-using AutoMapper;
+﻿using System.Collections.Immutable;
 using ColiseumLibrary.Contracts.Cards;
-using ColiseumLibrary.Contracts.DeckShufflers;
-using GodsApi.Data;
 using GodsApi.Models;
 using GodsApi.Repository;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace GodsApi.Services;
 
 public class GodsHostedService(
-        ILogger<IHostedService> logger,
+        ILogger<GodsHostedService> logger,
         IHostApplicationLifetime appLifetime,
-        IDeckShuffler deckShuffler,
+        IExperimentRepository repository,
         IWorker worker
     )
     : IHostedService
 {
-    private const int ExperimentCount = 100;
+    private const int ExperimentCount = 10;
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
@@ -27,7 +23,7 @@ public class GodsHostedService(
         {
             try
             {
-                RunExperiments();
+                Run();
             }
             catch (Exception e)
             {
@@ -42,30 +38,47 @@ public class GodsHostedService(
         return Task.CompletedTask;
     }
 
-    public Task StopAsync(CancellationToken cancellationToken)
+    public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+
+    private void Run()
     {
-        return Task.CompletedTask;
+        var firstPass = RunExperiments();
+        repository.AddExperiments(firstPass.ToImmutableList());
+        var compareResult = RunAndCompareExperiments(repository.GetLatestExperiments(ExperimentCount));
+        double successCount = firstPass.Sum(x => x.Output ? 1 : 0);
+        logger.LogInformation("Experiment result: {}%", successCount / ExperimentCount * 100);
+        logger.LogInformation("Comparison result: {}", compareResult);
     }
 
-    private void RunExperiments()
+    private List<Experiment> RunExperiments()
     {
-        var successCount = 0.0;
-        var experiments = GetExperiments();
-
-        logger.LogInformation("Result: {}%", successCount / ExperimentCount * 100);
-    }
-
-    private SortedSet<Experiment> GetExperiments()
-    {
-        var experiments = new SortedSet<Experiment>();
-        for (var i = 0; i < ExperimentCount; i++)
+        var experiments = new List<Experiment>();
+        for (var id = 1; id <= ExperimentCount; id++)
         {
-            deckShuffler.ShuffleDeck(out var firstDeck,out var secondDeck);
-            var experiment = worker.RunExperiment(i, firstDeck, secondDeck).Result;
-            experiments.Add(experiment);
+            var deck = new Deck();
+            experiments.Add(
+                new Experiment(
+                    id, 
+                    deck.FirstHalf, 
+                    deck.SecondHalf, 
+                    worker.RunExperiment(deck.FirstHalf, deck.SecondHalf).Result
+                    )
+                );
         }
-
         return experiments;
+    }
+
+    private bool RunAndCompareExperiments(IEnumerable<Experiment> firstPass)
+    {
+        foreach (var experiment in firstPass)
+        {
+            var output = worker.RunExperiment(experiment.PlayerCards, experiment.OpponentCards).Result;
+            if (output != experiment.Output)
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
 }
