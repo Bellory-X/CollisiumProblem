@@ -7,14 +7,7 @@ namespace ColiseumLibrary.Contracts.Strategies;
 /// </summary>
 public class RandomCardStrategy : ICardPickStrategy
 {
-    private readonly Random _random;
-    public RandomCardStrategy()
-    {
-        _random = new Random();
-    }
-    
-    public int Pick(Card[] cards)
-    {
-        return _random.Next(0, cards.Length);
-    }
+    private readonly Random _random = new();
+
+    public int Pick(Card[] cards) => _random.Next(0, cards.Length);
 }

@@ -5,8 +5,5 @@
 /// </summary>
 public record Card(CardColor Color)
 {
-    public override string ToString()
-    {
-        return Color == CardColor.Black ? "♠️" : "♦️";
-    }
+    public override string ToString() => Color == CardColor.Black ? "♠️" : "♦️";
 }

@@ -7,8 +7,5 @@ namespace ColiseumLibrary.Contracts.Strategies;
 /// </summary>
 public class FirstCardStrategy : ICardPickStrategy
 {
-    public int Pick(Card[] cards)
-    {
-        return 0;
-    }
+    public int Pick(Card[] cards) => 0;
 }
