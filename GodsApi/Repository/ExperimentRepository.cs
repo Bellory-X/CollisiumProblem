@@ -1,5 +1,7 @@
 ﻿using System.Collections.Immutable;
+using System.Data;
 using AutoMapper;
+using ColiseumLibrary.Contracts.Cards;
 using GodsApi.Data;
 using GodsApi.Models;
 using Microsoft.Extensions.Logging;
@@ -25,11 +27,26 @@ public class ExperimentRepository(
         return Save();
     }
 
-    public ICollection<Experiment> GetLatestExperiments(int count)
+    public List<Experiment> GetLatestExperiments(int count)
     {
-        return context.ExperimentDbModels
-            .Select(mapper.Map<ExperimentDbModel, Experiment>)
+        return context.ExperimentDbModels.Select(el =>
+                new Experiment(el.Id, Convert(el.CardColors), el.Output))
             .ToList();
+    }
+    
+    private static ImmutableArray<Card> Convert(string dbModel)
+    {
+        var domainModel = dbModel.Split('\n');
+        if (domainModel.Length != 36) throw new DataException("colors not equals 36");
+
+        return Array.ConvertAll(domainModel, s => {
+            return s switch 
+            { 
+                "♠️" => new Card(CardColor.Black), 
+                "♦️" => new Card(CardColor.Red), 
+                _ => throw new DataException("color not exist"), 
+            };
+        }).ToImmutableArray();
     }
 
     private bool Save() => context.SaveChanges() > 0;

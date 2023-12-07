@@ -1,49 +1,40 @@
-﻿using System.Data;
+﻿using System.Collections.Immutable;
+using System.Data;
 using AutoMapper;
 using ColiseumLibrary.Contracts.Cards;
 using GodsApi.Models;
 
 namespace GodsApi.Data;
 
-public class MappingProfile : Profile
+public class MappingProfiles : Profile
 {
-    public MappingProfile()
+    public MappingProfiles()
     {
         CreateMap<Experiment, ExperimentDbModel>()
-            .ForMember(dest => dest.PlayerColors,
-                opt =>
-                    opt.MapFrom(src => Convert(src.PlayerCards)))
-            .ForMember(dest => dest.OpponentColors,
-                opt =>
-                    opt.MapFrom(src => Convert(src.OpponentCards)));
-        CreateMap<ExperimentDbModel, Experiment>().ForAllMembers(opt =>
+            .ForMember(dest => dest.CardColors,
+                opt => 
+                    opt.MapFrom(src => Convert(src.Cards)));
+        CreateMap<ExperimentDbModel, Experiment>()
+            .ForAllMembers(opt =>
                 opt.MapFrom(src => 
-                    new Experiment(src.Id, 
-                        Convert(src.PlayerColors), 
-                        Convert(src.OpponentColors), 
-                        src.Output)));
+                    new Experiment(src.Id, Convert(src.CardColors), src.Output)));
     }
+
+    private static string Convert(ImmutableArray<Card> domainModel) =>
+        String.Join('\n', domainModel.Select(x => x.ToString()));
     
-    private static string Convert(Card[] cards)
+    private static ImmutableArray<Card> Convert(string dbModel)
     {
-        return String.Join('\n', Array.ConvertAll(cards, el => el.ToString()));
-    }
+        var domainModel = dbModel.Split('\n');
+        if (domainModel.Length != 36) throw new DataException("colors not equals 36");
 
-    private static Card[] Convert(string str)
-    {
-        var colors = str.Split('\n');
-        if (colors.Length != 18)
-        {
-            throw new DataException("colors not equals 18");
-        }
-
-        return Array.ConvertAll(colors, s => {
+        return Array.ConvertAll(domainModel, s => {
             return s switch 
             { 
                 "♠️" => new Card(CardColor.Black), 
                 "♦️" => new Card(CardColor.Red), 
                 _ => throw new DataException("color not exist"), 
             };
-        });
+        }).ToImmutableArray();
     }
 }

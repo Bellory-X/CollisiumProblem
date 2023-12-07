@@ -5,5 +5,5 @@ namespace GodsApi.Services;
 
 public interface IWorker
 {
-    public Task<bool> RunExperiment(Card[] playerCards, Card[] opponentCards);
+    public Task<bool> RunExperiment(Deck deck);
 }

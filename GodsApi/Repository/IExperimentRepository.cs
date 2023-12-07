@@ -9,5 +9,5 @@ public interface IExperimentRepository
 
     bool DeleteAllExperiments(ImmutableList<Experiment> domainModels);
     
-    ICollection<Experiment> GetLatestExperiments(int count);
+    List<Experiment> GetLatestExperiments(int count);
 }

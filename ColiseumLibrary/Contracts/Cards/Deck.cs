@@ -1,29 +1,35 @@
-﻿namespace ColiseumLibrary.Contracts.Cards;
+﻿using System.Collections.Immutable;
+
+namespace ColiseumLibrary.Contracts.Cards;
 
 /// <summary>
 /// Колода карт
 /// </summary>
-public class Deck
+public record Deck
 {
-    private const int CardCount = 18;
-    public Card[] FirstHalf { get; }
-    public Card[] SecondHalf { get; }
+    public const int CardCount = 36;
+    public ImmutableArray<Card> Cards { get; }
+    public ImmutableArray<Card> FirstHalf { get => Cards.Take(CardCount / 2).ToImmutableArray(); }
+    public ImmutableArray<Card> SecondHalf{ get => Cards.Take(CardCount / 2).ToImmutableArray(); }
 
-    public Deck()
+    public Deck(ImmutableArray<Card> cards)
     {
-        var cards = new Card[CardCount * 2];
-        var random = new Random();
-        for (var i = 0; i < CardCount; i++)
+        ValidateCards(cards);
+        Cards = cards;
+    }
+
+    private static void ValidateCards(ImmutableArray<Card> cards)
+    {
+        if (cards == null) throw new ArgumentNullException(nameof(cards));
+        if (cards.Length != CardCount)
         {
-            cards[i] = new Card(CardColor.Red);
-            cards[cards.Length - 1 - i] = new Card(CardColor.Black);
+            throw new ArgumentException("firstHalf and secondHalf must be equals 32");
         }
-        for (var i = 0; i < CardCount; i++)
+        var redCardCount = cards.Select(x => x.Color).Count(x => x == CardColor.Red);
+        var blackCardCount = cards.Select(x => x.Color).Count(x => x == CardColor.Black);
+        if (redCardCount != CardCount / 2 || blackCardCount != CardCount / 2)
         {
-            var j = random.Next(CardCount * 2);
-            (cards[i], cards[j]) = (cards[j], cards[i]);
+            throw new ArgumentException("red cards and black cards must be equals 18");
         }
-        FirstHalf = cards.Take(CardCount).ToArray();
-        SecondHalf = cards.TakeLast(CardCount).ToArray();
     }
 }

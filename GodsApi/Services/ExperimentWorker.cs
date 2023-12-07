@@ -11,12 +11,12 @@ public class ExperimentWorker : IWorker
     private const string SecondPlayerUrl = "https://localhost:7277/api/second";
     private readonly HttpClient _client = new();
 
-    public async Task<bool> RunExperiment(Card[] playerCards, Card[] opponentCards)
+    public async Task<bool> RunExperiment(Deck deck)
     {
-        var firstPlayerChoice = await GetPlayerChoice(FirstPlayerUrl, playerCards);
-        var secondPlayerChoice = await GetPlayerChoice(SecondPlayerUrl, opponentCards);
+        var firstPlayerChoice = await GetPlayerChoice(FirstPlayerUrl, deck.FirstHalf);
+        var secondPlayerChoice = await GetPlayerChoice(SecondPlayerUrl, deck.SecondHalf);
         
-        return playerCards[secondPlayerChoice] == opponentCards[firstPlayerChoice];
+        return deck.Cards[secondPlayerChoice] == deck.Cards[firstPlayerChoice];
     }
 
     private async Task<int> GetPlayerChoice(string url, IEnumerable cards)
