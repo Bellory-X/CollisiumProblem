@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using ColiseumLibrary.Contracts.Cards;
 using ColiseumLibrary.Contracts.DeckShufflers;
+using ColiseumLibrary.Contracts.ExperimentWorkers;
 using GodsApi.Models;
 using GodsApi.Repository;
 using Microsoft.Extensions.Hosting;
@@ -13,7 +14,7 @@ public class HostedService(
         IHostApplicationLifetime appLifetime,
         IExperimentRepository repository,
         IDeckShuffler shuffler,
-        IWorker worker
+        IExperimentWorker worker
     )
     : IHostedService
 {

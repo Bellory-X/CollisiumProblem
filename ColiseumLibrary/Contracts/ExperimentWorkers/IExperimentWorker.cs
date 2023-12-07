@@ -1,9 +1,9 @@
 ﻿using ColiseumLibrary.Contracts.Cards;
 using GodsApi.Models;
 
-namespace GodsApi.Services;
+namespace ColiseumLibrary.Contracts.ExperimentWorkers;
 
-public interface IWorker
+public interface IExperimentWorker
 {
     public Task<bool> RunExperiment(Deck deck);
 }

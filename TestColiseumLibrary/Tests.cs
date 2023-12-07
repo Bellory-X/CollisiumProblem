@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using ColiseumLibrary.Contracts.Cards;
 using ColiseumLibrary.Contracts.DeckShufflers;
 using ColiseumLibrary.Contracts.Strategies;
@@ -7,10 +6,9 @@ namespace TestColiseumLibrary;
 
 public class Tests
 {
-    private const int CardCount = 18;
 
     [Test]
-    public void TestDeck_With_CorrectCardArray()
+    public void TestDeckWithCorrectCardArray()
     {
         var cards = new Card[Deck.CardCount];
         for (var i = 0; i < Deck.CardCount / 2; i++)
@@ -29,9 +27,9 @@ public class Tests
     }
     
     [Test]
-    public void TestDeck_With_OnlyBlackColorCardArray()
+    public void TestDeckWithOnlyBlackColorCardArray()
     {
-        var cards = new Card[CardCount * 2];
+        var cards = new Card[Deck.CardCount * 2];
         for (var i = 0; i < cards.Length; i++)
         {
             cards[i] = new Card(CardColor.Black);
@@ -44,9 +42,9 @@ public class Tests
     }
     
     [Test]
-    public void TestFirstCardStrategy_With_EmptyCardArray()
+    public void TestFirstCardStrategyWithEmptyCardArray()
     {
-        var cards = new Card[CardCount];
+        var cards = new Card[Deck.CardCount];
         var strategy = new FirstCardStrategy();
         
         var cardNumber = strategy.Pick(cards);
@@ -55,7 +53,7 @@ public class Tests
     }
 
     [Test]
-    public void TestExperiment_With_FirstCardStrategies_And_RandomDeckShuffler()
+    public void TestExperimentWithFirstCardStrategiesAndRandomDeckShuffler()
     {
         Assert.Pass();
     }

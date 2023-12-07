@@ -3,9 +3,9 @@ using System.Text;
 using ColiseumLibrary.Contracts.Cards;
 using Newtonsoft.Json;
 
-namespace GodsApi.Services;
+namespace ColiseumLibrary.Contracts.ExperimentWorkers;
 
-public class ExperimentWorker : IWorker
+public class HttpExperimentWorker : IExperimentWorker
 {
     private const string FirstPlayerUrl = "https://localhost:7212/api/first";
     private const string SecondPlayerUrl = "https://localhost:7277/api/second";
