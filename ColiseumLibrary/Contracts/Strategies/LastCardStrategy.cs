@@ -1,4 +1,5 @@
 ﻿using ColiseumLibrary.Contracts.Cards;
+using ColiseumLibrary.Interfaces;
 
 namespace ColiseumLibrary.Contracts.Strategies;
 

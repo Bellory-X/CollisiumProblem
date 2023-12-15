@@ -1,13 +1,15 @@
 ﻿using System.Collections.Immutable;
-using GodsApi.Models;
+using GodsApi.Model;
 
 namespace GodsApi.Repository;
 
 public interface IExperimentRepository
 {
+    bool AddExperiment(Experiment domainModel);
+
     bool AddExperiments(ImmutableList<Experiment> domainModels);
 
-    bool DeleteAllExperiments(ImmutableList<Experiment> domainModels);
+    Experiment? GetExperimentById(int id);
     
-    List<Experiment> GetLatestExperiments(int count);
+    List<Experiment> GetExperiments(int count);
 }

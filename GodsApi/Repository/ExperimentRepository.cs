@@ -3,36 +3,60 @@ using System.Data;
 using AutoMapper;
 using ColiseumLibrary.Contracts.Cards;
 using GodsApi.Data;
-using GodsApi.Models;
-using Microsoft.Extensions.Logging;
+using GodsApi.Model;
 
 namespace GodsApi.Repository;
 
-public class ExperimentRepository(
-    ILogger<IExperimentRepository> logger, 
-    ApplicationDbContext context, 
-    IMapper mapper
-    ) : IExperimentRepository
+public class ExperimentRepository(ExperimentDbContext context, IMapper mapper) : IExperimentRepository
 {
+    public bool AddExperiment(Experiment domainModel)
+    {
+        AddExperimentToContext(domainModel);
+        return Save();
+    }
+    
+    public Experiment? GetExperimentById(int id)
+    {
+        var dbModel = context.ExperimentDbModels.Find(id);
+        return dbModel is null ? null : Convert(dbModel);
+    }
+    
     public bool AddExperiments(ImmutableList<Experiment> domainModels)
     {
-        var dbModels = domainModels.Select(mapper.Map<Experiment, ExperimentDbModel>);
-        context.AddRange(dbModels);
+        foreach (var domainModel in domainModels)
+        {
+            AddExperimentToContext(domainModel);
+        }
         return Save();
     }
 
-    public bool DeleteAllExperiments(ImmutableList<Experiment> domainModels)
+    public List<Experiment> GetExperiments(int count) => 
+        context.ExperimentDbModels.OrderByDescending(s => s.Id).Select(Convert).Take(count).ToList();
+    
+    private void AddExperimentToContext(Experiment domainModel)
     {
-        context.RemoveRange(domainModels.Select(mapper.Map<Experiment, ExperimentDbModel>));
-        return Save();
+        var dbModel = context.ExperimentDbModels.Find(domainModel.Id);
+        if (dbModel is null)
+        {
+            context.ExperimentDbModels.Add(Convert(domainModel));
+        }
+        else
+        {
+            dbModel.CardColors = Convert(domainModel.Cards);
+            dbModel.Output = domainModel.Output;
+        }
     }
-
-    public List<Experiment> GetLatestExperiments(int count)
-    {
-        return context.ExperimentDbModels.Select(el =>
-                new Experiment(el.Id, Convert(el.CardColors), el.Output))
-            .ToList();
-    }
+    
+    private bool Save() => context.SaveChanges() > 0;
+    
+    private static ExperimentDbModel Convert(Experiment domainModel) => 
+        new() { Id = domainModel.Id, CardColors = Convert(domainModel.Cards), Output = domainModel.Output };
+    
+    private static string Convert(ImmutableArray<Card> domainModel) =>
+        String.Join('\n', domainModel.Select(x => x.ToString()));
+    
+    private static Experiment Convert(ExperimentDbModel dbModel) => 
+        new(dbModel.Id, Convert(dbModel.CardColors), dbModel.Output);
     
     private static ImmutableArray<Card> Convert(string dbModel)
     {
@@ -48,6 +72,4 @@ public class ExperimentRepository(
             };
         }).ToImmutableArray();
     }
-
-    private bool Save() => context.SaveChanges() > 0;
 }

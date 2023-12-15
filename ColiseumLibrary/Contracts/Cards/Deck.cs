@@ -8,14 +8,29 @@ namespace ColiseumLibrary.Contracts.Cards;
 public record Deck
 {
     public const int CardCount = 36;
-    public ImmutableArray<Card> Cards { get; }
-    public ImmutableArray<Card> FirstHalf { get => Cards.Take(CardCount / 2).ToImmutableArray(); }
-    public ImmutableArray<Card> SecondHalf{ get => Cards.Take(CardCount / 2).ToImmutableArray(); }
+    private readonly ImmutableArray<Card> _cards;
 
-    public Deck(ImmutableArray<Card> cards)
+    public ImmutableArray<Card> Cards 
+    { 
+        get => _cards;
+        init
+        {
+            ValidateCards(value);
+            _cards = value;
+        }
+    }
+    public ImmutableArray<Card> FirstHalf { get => Cards.Take(CardCount / 2).ToImmutableArray(); }
+    public ImmutableArray<Card> SecondHalf{ get => Cards.TakeLast(CardCount / 2).ToImmutableArray(); }
+    
+    public static Card[] GetCards()
     {
-        ValidateCards(cards);
-        Cards = cards;
+        var cards = new Card[CardCount];
+        for (var i = 0; i < CardCount / 2; i++)
+        {
+            cards[i] = new Card(CardColor.Black);
+            cards[CardCount - 1 - i] = new Card(CardColor.Red);
+        }
+        return cards;
     }
 
     private static void ValidateCards(ImmutableArray<Card> cards)

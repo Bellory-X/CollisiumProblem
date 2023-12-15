@@ -2,7 +2,7 @@
 using System.Data;
 using AutoMapper;
 using ColiseumLibrary.Contracts.Cards;
-using GodsApi.Models;
+using GodsApi.Model;
 
 namespace GodsApi.Data;
 
