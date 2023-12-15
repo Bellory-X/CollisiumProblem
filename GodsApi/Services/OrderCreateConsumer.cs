@@ -1,5 +1,6 @@
-﻿using ColiseumLibrary.Contracts.Orders;
-using ColiseumLibrary.Interfaces;
+﻿using ColiseumLibrary.Interfaces;
+using ColiseumLibrary.Model.Experiments;
+using ColiseumLibrary.Model.Orders;
 using GodsApi.Repository;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -16,27 +17,35 @@ public class OrderCreateConsumer(
     public Task Consume(ConsumeContext<OrderCreated> context)
     {
         var order = context.Message;
-        if (!_playerChoices.ContainsKey(order.Id))
-        {
-            _playerChoices.Add(order.Id, order.CardNumber);
-            logger.LogInformation("Add choice: id: {}, {}", order.Id, order.CardNumber);
-            return Task.CompletedTask;
-        }
+        if (!_playerChoices.ContainsKey(order.Id)) return AddChoice(order);
+        
         var exp = repository.GetExperimentById(order.Id);
-        if (exp is null)
-        {
-            logger.LogInformation("Experiment {} not found", order.Id);
-            return Task.CompletedTask;
-        }
+        if (exp is not null) return WorkExperiment(order, exp);
+        
+        logger.LogInformation("Experiment {} not found", order.Id);
+        
+        return Task.CompletedTask;
+    }
+
+    private Task AddChoice(OrderCreated order)
+    {
+        _playerChoices.Add(order.Id, order.CardNumber);
+        logger.LogInformation("Add choice: id: {}, value: {}", order.Id, order.CardNumber);
+        return Task.CompletedTask;
+    }
+
+    private Task WorkExperiment(OrderCreated order, Experiment experiment)
+    {
         var output = _playerChoices[order.Id] == order.CardNumber;
-        if (exp.Output is null)
-        {
+        
+        if (experiment.Output is null) 
             logger.LogInformation("Create experiment {} with output = {}", order.Id, output);
-            repository.AddExperiment(exp with { Output = output });
-            return Task.CompletedTask;
-        }
-        logger.LogInformation("Update experiment {}, old output = {}, new output {}", 
-            order.Id, exp.Output, output);
+        else 
+            logger.LogInformation("Update experiment {}, old output = {}, new output {}", 
+                order.Id, experiment.Output, output);
+        
+        repository.AddExperiment(experiment with { Output = output });
+        
         return Task.CompletedTask;
     }
 }

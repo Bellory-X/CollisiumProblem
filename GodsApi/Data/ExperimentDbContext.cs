@@ -1,4 +1,4 @@
-﻿using GodsApi.Model;
+﻿using ColiseumLibrary.Model.Experiments;
 using Microsoft.EntityFrameworkCore;
 
 namespace GodsApi.Data;

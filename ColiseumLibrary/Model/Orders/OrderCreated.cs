@@ -1,6 +1,4 @@
-﻿using ColiseumLibrary.Interfaces;
-
-namespace ColiseumLibrary.Contracts.Orders;
+﻿namespace ColiseumLibrary.Model.Orders;
 
 public class OrderCreated
 {

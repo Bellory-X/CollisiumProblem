@@ -1,11 +1,11 @@
 ﻿using System.Collections.Immutable;
 using AutoMapper;
-using ColiseumLibrary.Contracts.Cards;
-using ColiseumLibrary.Contracts.Strategies;
 using ColiseumLibrary.DeckShufflers;
+using ColiseumLibrary.Model.Cards;
+using ColiseumLibrary.Model.Experiments;
+using ColiseumLibrary.Strategies;
 using GodsApi.Data;
 using ColiseumLibrary.Workers;
-using GodsApi.Model;
 using GodsApi.Repository;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,11 +17,11 @@ public class DbTests
     {
         var options = new DbContextOptionsBuilder<ExperimentDbContext>()
             .UseSqlite("FileName=test_db.db").Options;
-        var mapper = new MapperConfiguration(cfg => 
-                cfg.AddProfile<MappingProfiles>()).CreateMapper();
+        // var mapper = new MapperConfiguration(cfg => 
+        //         cfg.AddProfile<MappingProfiles>()).CreateMapper();
         var context = new ExperimentDbContext(options);
         
-        return new ExperimentRepository(context, mapper);
+        return new ExperimentRepository(context);
     }
     
     [Test]
@@ -50,17 +50,17 @@ public class DbTests
     public void EqualsExperimentsResults_ShouldBeEquals()
     {
         var repository = GetRepository();
-        var cards = Deck.GetCards();
-        var shuffler = new RandomDeckShuffler();
-        var worker = new SimpleWorker(new FirstCardStrategy(), new LastCardStrategy());
+        var shuffler = new NotDeckShuffler();
+        var firstCard = new FirstCardStrategy();
+        var lastCard = new LastCardStrategy();
+        var worker = new SimpleExperimentService(shuffler, firstCard, lastCard);
         var firstPass = new List<Experiment>();
         for (var id = 1; id <= 100; id++)
         {
-            var deck = shuffler.Shuffle(cards);
-            var output = worker.Work(deck);
-            firstPass.Add(new Experiment(id, deck.Cards, output));
+            worker.Run();
+            firstPass.Add(new Experiment(id, worker.Cards.ToImmutableArray(), worker.Output));
         }
-
+        worker.Shuffler = new NotDeckShuffler();
         
         repository.AddExperiments(firstPass.ToImmutableList());
         var secondPass = repository.GetExperiments(100);
@@ -70,9 +70,9 @@ public class DbTests
         {
             foreach (var experiment in secondPass)
             {
-                var deck = new Deck { Cards = experiment.Cards };
-                var output = worker.Work(deck);
-                Assert.That(output == experiment.Output, Is.EqualTo(true));
+                worker.Cards = experiment.Cards.ToArray();
+                worker.Run();
+                Assert.That(worker.Output == experiment.Output, Is.EqualTo(true));
             }
         });
     }

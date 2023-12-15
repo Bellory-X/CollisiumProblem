@@ -1,13 +1,14 @@
 ﻿using System.Collections.Immutable;
 using System.Data;
 using AutoMapper;
-using ColiseumLibrary.Contracts.Cards;
+using ColiseumLibrary.Interfaces;
+using ColiseumLibrary.Model.Cards;
+using ColiseumLibrary.Model.Experiments;
 using GodsApi.Data;
-using GodsApi.Model;
 
 namespace GodsApi.Repository;
 
-public class ExperimentRepository(ExperimentDbContext context, IMapper mapper) : IExperimentRepository
+public class ExperimentRepository(ExperimentDbContext context) : IExperimentRepository
 {
     public bool AddExperiment(Experiment domainModel)
     {
@@ -31,7 +32,8 @@ public class ExperimentRepository(ExperimentDbContext context, IMapper mapper) :
     }
 
     public List<Experiment> GetExperiments(int count) => 
-        context.ExperimentDbModels.OrderByDescending(s => s.Id).Select(Convert).Take(count).ToList();
+        context.ExperimentDbModels.OrderByDescending(s => s.Id)
+            .Select(Convert).Take(count).ToList();
     
     private void AddExperimentToContext(Experiment domainModel)
     {
@@ -62,7 +64,7 @@ public class ExperimentRepository(ExperimentDbContext context, IMapper mapper) :
     {
         var domainModel = dbModel.Split('\n');
         if (domainModel.Length != 36) throw new DataException("colors not equals 36");
-
+    
         return Array.ConvertAll(domainModel, s => {
             return s switch 
             { 

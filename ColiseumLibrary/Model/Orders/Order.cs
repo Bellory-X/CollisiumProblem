@@ -1,7 +1,7 @@
 ﻿using System.Collections.Immutable;
-using ColiseumLibrary.Contracts.Cards;
+using ColiseumLibrary.Model.Cards;
 
-namespace ColiseumLibrary.Contracts.Orders;
+namespace ColiseumLibrary.Model.Orders;
 
 public class Order
 {

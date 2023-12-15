@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
 
-namespace ColiseumLibrary.Contracts.Cards;
+namespace ColiseumLibrary.Model.Cards;
 
 /// <summary>
 /// Колода карт

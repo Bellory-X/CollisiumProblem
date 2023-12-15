@@ -1,7 +1,7 @@
 ﻿using System.Collections.Immutable;
-using GodsApi.Model;
+using ColiseumLibrary.Model.Experiments;
 
-namespace GodsApi.Repository;
+namespace ColiseumLibrary.Interfaces;
 
 public interface IExperimentRepository
 {

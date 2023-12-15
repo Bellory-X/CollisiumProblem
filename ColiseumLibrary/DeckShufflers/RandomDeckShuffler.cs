@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
-using ColiseumLibrary.Contracts.Cards;
 using ColiseumLibrary.Interfaces;
+using ColiseumLibrary.Model.Cards;
 
 namespace ColiseumLibrary.DeckShufflers;
 

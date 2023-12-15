@@ -1,21 +1,13 @@
-using ColiseumLibrary.Contracts.Orders;
-using ColiseumLibrary.Interfaces;
+using ColiseumLibrary.Model.Orders;
+using ColiseumLibrary.Workers;
 using Microsoft.AspNetCore.Mvc;
 
 namespace OpponentApi.Controllers;
 
 [ApiController]
 [Route("opponent")]
-public class OpponentController(
-    ICardPickStrategy strategy,
-    ILogger<OpponentController> logger
-) : ControllerBase
+public class OpponentController(OrderService service) : ControllerBase
 {
     [HttpPost]
-    public OrderCreated CreateOrder(Order order)
-    {
-        var cardNumber = strategy.Pick(order.Cards.ToArray());
-        logger.LogInformation("Experiment id: {}, card number: {}", order.Id, cardNumber);
-        return new OrderCreated {Id = order.Id, CardNumber = cardNumber };
-    }
+    public OrderCreated CreateOrder(Order order) => service.CreateOrder(order);
 }

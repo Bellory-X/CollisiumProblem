@@ -1,4 +1,4 @@
-﻿namespace ColiseumLibrary.Contracts.Cards;
+﻿namespace ColiseumLibrary.Model.Cards;
 
 /// <summary>
 /// Цвет карты

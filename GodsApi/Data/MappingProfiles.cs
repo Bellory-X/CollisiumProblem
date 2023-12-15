@@ -1,8 +1,8 @@
 ﻿using System.Collections.Immutable;
 using System.Data;
 using AutoMapper;
-using ColiseumLibrary.Contracts.Cards;
-using GodsApi.Model;
+using ColiseumLibrary.Model.Cards;
+using ColiseumLibrary.Model.Experiments;
 
 namespace GodsApi.Data;
 
@@ -11,17 +11,21 @@ public class MappingProfiles : Profile
     public MappingProfiles()
     {
         CreateMap<Experiment, ExperimentDbModel>()
-            .ForMember(dest => dest.CardColors,
-                opt => 
-                    opt.MapFrom(src => Convert(src.Cards)));
+            .ForAllMembers(opt =>
+                opt.MapFrom(src => Convert(src)));
         CreateMap<ExperimentDbModel, Experiment>()
             .ForAllMembers(opt =>
-                opt.MapFrom(src => 
-                    new Experiment(src.Id, Convert(src.CardColors), src.Output)));
+                opt.MapFrom(src => Convert(src)));
     }
 
+    private static ExperimentDbModel Convert(Experiment domainModel) => 
+        new() { Id = domainModel.Id, CardColors = Convert(domainModel.Cards), Output = domainModel.Output };
+    
     private static string Convert(ImmutableArray<Card> domainModel) =>
         String.Join('\n', domainModel.Select(x => x.ToString()));
+    
+    private static Experiment Convert(ExperimentDbModel dbModel) => 
+        new(dbModel.Id, Convert(dbModel.CardColors), dbModel.Output);
     
     private static ImmutableArray<Card> Convert(string dbModel)
     {

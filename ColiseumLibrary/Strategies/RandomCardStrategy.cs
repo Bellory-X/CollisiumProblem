@@ -1,7 +1,7 @@
-﻿using ColiseumLibrary.Contracts.Cards;
-using ColiseumLibrary.Interfaces;
+﻿using ColiseumLibrary.Interfaces;
+using ColiseumLibrary.Model.Cards;
 
-namespace ColiseumLibrary.Contracts.Strategies;
+namespace ColiseumLibrary.Strategies;
 
 /// <summary>
 /// Стратегия выбора рандомной карты из колоды

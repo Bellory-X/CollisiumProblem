@@ -1,4 +1,4 @@
-﻿using ColiseumLibrary.Contracts.Cards;
+﻿using ColiseumLibrary.Model.Cards;
 
 namespace ColiseumLibrary.Interfaces;
 

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
-using ColiseumLibrary.Contracts.Cards;
+using ColiseumLibrary.Model.Cards;
 
-namespace GodsApi.Model;
+namespace ColiseumLibrary.Model.Experiments;
 
 public record Experiment(int Id, ImmutableArray<Card> Cards, bool? Output);

@@ -1,4 +1,4 @@
-﻿namespace GodsApi.Model;
+﻿namespace ColiseumLibrary.Model.Experiments;
 
 public class ExperimentDbModel
 {

@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
-using ColiseumLibrary.Contracts.Cards;
-using ColiseumLibrary.Contracts.Strategies;
 using ColiseumLibrary.DeckShufflers;
+using ColiseumLibrary.Model.Cards;
+using ColiseumLibrary.Strategies;
 using ColiseumLibrary.Workers;
 
 namespace TestColiseumProblem;
@@ -81,14 +81,15 @@ public class Tests
             cards[cards.Length - 1 - i] = new Card(CardColor.Black);
         }
         var shuffler = new NotDeckShuffler();
-        var worker = new SimpleWorker(new FirstCardStrategy(), new FirstCardStrategy());
-
-        
-        var deck = shuffler.Shuffle(cards);
-        var output = worker.Work(deck);
+        var firstCard = new FirstCardStrategy();
+        var lastCard = new LastCardStrategy();
+        var worker = new SimpleExperimentService(shuffler, firstCard, lastCard);
         
         
-        Assert.That(output, Is.EqualTo(false));
+        worker.Run();
+        
+        
+        Assert.That(worker.Output, Is.EqualTo(false));
     }
     
 }
