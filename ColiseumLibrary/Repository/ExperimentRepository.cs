@@ -1,12 +1,12 @@
 ﻿using System.Collections.Immutable;
 using System.Data;
 using AutoMapper;
+using ColiseumLibrary.Data;
 using ColiseumLibrary.Interfaces;
 using ColiseumLibrary.Model.Cards;
 using ColiseumLibrary.Model.Experiments;
-using GodsApi.Data;
 
-namespace GodsApi.Repository;
+namespace ColiseumLibrary.Repository;
 
 public class ExperimentRepository(ExperimentDbContext context) : IExperimentRepository
 {
@@ -18,7 +18,7 @@ public class ExperimentRepository(ExperimentDbContext context) : IExperimentRepo
     
     public Experiment? GetExperimentById(int id)
     {
-        var dbModel = context.ExperimentDbModels.Find(id);
+        var dbModel = context.ExperimentDbs.Find(id);
         return dbModel is null ? null : Convert(dbModel);
     }
     
@@ -32,15 +32,15 @@ public class ExperimentRepository(ExperimentDbContext context) : IExperimentRepo
     }
 
     public List<Experiment> GetExperiments(int count) => 
-        context.ExperimentDbModels.OrderByDescending(s => s.Id)
+        context.ExperimentDbs.OrderByDescending(s => s.Id)
             .Select(Convert).Take(count).ToList();
     
     private void AddExperimentToContext(Experiment domainModel)
     {
-        var dbModel = context.ExperimentDbModels.Find(domainModel.Id);
+        var dbModel = context.ExperimentDbs.Find(domainModel.Id);
         if (dbModel is null)
         {
-            context.ExperimentDbModels.Add(Convert(domainModel));
+            context.ExperimentDbs.Add(Convert(domainModel));
         }
         else
         {
@@ -51,13 +51,13 @@ public class ExperimentRepository(ExperimentDbContext context) : IExperimentRepo
     
     private bool Save() => context.SaveChanges() > 0;
     
-    private static ExperimentDbModel Convert(Experiment domainModel) => 
+    private static ExperimentDb Convert(Experiment domainModel) => 
         new() { Id = domainModel.Id, CardColors = Convert(domainModel.Cards), Output = domainModel.Output };
     
     private static string Convert(ImmutableArray<Card> domainModel) =>
         String.Join('\n', domainModel.Select(x => x.ToString()));
     
-    private static Experiment Convert(ExperimentDbModel dbModel) => 
+    private static Experiment Convert(ExperimentDb dbModel) => 
         new(dbModel.Id, Convert(dbModel.CardColors), dbModel.Output);
     
     private static ImmutableArray<Card> Convert(string dbModel)

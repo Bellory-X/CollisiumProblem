@@ -8,19 +8,15 @@ namespace ColiseumLibrary.Model.Cards;
 public record Deck
 {
     public const int CardCount = 36;
-    private readonly ImmutableArray<Card> _cards;
-
-    public ImmutableArray<Card> Cards 
-    { 
-        get => _cards;
-        init
-        {
-            ValidateCards(value);
-            _cards = value;
-        }
-    }
+    public ImmutableArray<Card> Cards { get; }
     public ImmutableArray<Card> FirstHalf { get => Cards.Take(CardCount / 2).ToImmutableArray(); }
     public ImmutableArray<Card> SecondHalf{ get => Cards.TakeLast(CardCount / 2).ToImmutableArray(); }
+
+    public Deck(ImmutableArray<Card> cards)
+    {
+        ValidateCards(cards);
+        Cards = cards;
+    }
     
     public static Card[] GetCards()
     {
@@ -35,14 +31,16 @@ public record Deck
 
     private static void ValidateCards(ImmutableArray<Card> cards)
     {
-        if (cards == null) throw new ArgumentNullException(nameof(cards));
+        ArgumentNullException.ThrowIfNull(cards);
         if (cards.Length != CardCount)
         {
             throw new ArgumentException("firstHalf and secondHalf must be equals 32");
         }
-        var redCardCount = cards.Select(x => x.Color).Count(x => x == CardColor.Red);
-        var blackCardCount = cards.Select(x => x.Color).Count(x => x == CardColor.Black);
-        if (redCardCount != CardCount / 2 || blackCardCount != CardCount / 2)
+        var isRedCardCountValid = cards.Select(x => x.Color)
+            .Count(x => x == CardColor.Red).Equals(CardCount / 2);
+        var isBlackCardCountValid = cards.Select(x => x.Color)
+            .Count(x => x == CardColor.Black).Equals(CardCount / 2);
+        if (!isRedCardCountValid || !isBlackCardCountValid)
         {
             throw new ArgumentException("red cards and black cards must be equals 18");
         }

@@ -1,5 +1,6 @@
 ﻿using System.Net.Http.Json;
 using System.Text;
+using ColiseumLibrary.DeckShufflers;
 using ColiseumLibrary.Interfaces;
 using ColiseumLibrary.Model.Cards;
 using ColiseumLibrary.Model.Experiments;
@@ -7,10 +8,10 @@ using ColiseumLibrary.Model.Orders;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
-namespace ColiseumLibrary.Workers;
+namespace ColiseumLibrary.Services;
 
-public class ExperimentWebService(
-    ILogger<ExperimentWebService> logger,
+public class GodsExperimentService(
+    ILogger<GodsExperimentService> logger,
     IExperimentRepository repository,
     IDeckShuffler shuffler
     ) : IExperimentService
@@ -20,38 +21,50 @@ public class ExperimentWebService(
     private readonly HttpClient _client = new();
     private readonly Card[] _cards = Deck.GetCards();
 
-    public void Run()
+    public Task Run(int id)
     {
-        var id = Convert.ToInt32(Console.ReadLine());
-        if (id < 1) return;
         var experiment = repository.GetExperimentById(id);
-        if (experiment is null) RunNewExperiment(id);
-        else RunOldExperiment(experiment);
+        return experiment is null ? RunNewExperiment(id) : RunOldExperiment(experiment);
     }
     
-    private void RunNewExperiment(int id)
+    private Task RunNewExperiment(int id)
     {
         var deck = shuffler.Shuffle(_cards);
         var output = Work(id, deck);
-        repository.AddExperiment(new Experiment(id, deck.Cards, output));
+        repository.AddExperiment(new Experiment(id, deck.Cards, output.Result));
         logger.LogInformation("Experiment: id = {}, output = {}", id, output);
+        
+        return Task.CompletedTask;
     }
 
-    private void RunOldExperiment(Experiment experiment)
+    private Task RunOldExperiment(Experiment experiment)
     {
-        var output = Work(experiment.Id, new Deck { Cards = experiment.Cards });
+        var output = Work(experiment.Id, new Deck(experiment.Cards));
+        if (experiment.Output != output.Result)
+        {
+            repository.AddExperiment(experiment with { Output = output.Result });
+        }
         logger.LogInformation("Experiment: id = {}, old output = {}, new output = {}", 
             experiment.Id, experiment.Output, output);
-        if (experiment.Output != output) repository.AddExperiment(experiment with { Output = output });
+        
+        return Task.CompletedTask;
     }
 
-    private bool Work(int id, Deck deck)
+    private async Task<bool> Work(int id, Deck deck)
     {
-        var playerChoice = GetCardNumber(PlayerUrl, new Order {Id = id, Cards = deck.FirstHalf}).Result;
-        var opponentChoice = GetCardNumber(OpponentUrl, new Order {Id = id, Cards = deck.SecondHalf}).Result;
-        if (playerChoice is null || opponentChoice is null) throw new NullReferenceException();
+        switch (shuffler)
+        {
+            case NotDeckShuffler: 
+                break;
+            case RandomDeckShuffler:
+                break;
+        }
+        var playerChoice = await GetCardNumber(PlayerUrl, new Order {Id = id, Cards = deck.FirstHalf});
+        var opponentChoice = await GetCardNumber(OpponentUrl, new Order {Id = id, Cards = deck.SecondHalf});
+        ArgumentNullException.ThrowIfNull(playerChoice);
+        ArgumentNullException.ThrowIfNull(opponentChoice);
         
-        return deck.Cards[opponentChoice.CardNumber] == deck.Cards[playerChoice.CardNumber];
+        return deck.Cards[opponentChoice.Ordinal] == deck.Cards[playerChoice.Ordinal];
     }
 
     private async Task<OrderCreated?> GetCardNumber(string url, Order order)

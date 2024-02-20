@@ -1,6 +1,6 @@
 ﻿namespace ColiseumLibrary.Model.Experiments;
 
-public class ExperimentDbModel
+public class ExperimentDb
 {
     public int Id { get; set; }
     public string CardColors { get; set; } = null!;

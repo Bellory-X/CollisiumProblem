@@ -1,8 +1,8 @@
 using System.Collections.Immutable;
 using ColiseumLibrary.DeckShufflers;
 using ColiseumLibrary.Model.Cards;
+using ColiseumLibrary.Services;
 using ColiseumLibrary.Strategies;
-using ColiseumLibrary.Workers;
 
 namespace TestColiseumProblem;
 
@@ -21,13 +21,18 @@ public class Tests
         var shuffler = new RandomDeckShuffler();
         var deck = shuffler.Shuffle(cards);
         
+        
         var redCardCount = deck.Cards.Select(x => x.Color).Count(x => x == CardColor.Red);
         var blackCardCount = deck.Cards.Select(x => x.Color).Count(x => x == CardColor.Black);
         
-        Assert.That(redCardCount, Is.EqualTo(18));
-        Assert.That(blackCardCount, Is.EqualTo(18));
+        
+        Assert.Multiple(() =>
+        {
+            Assert.That(redCardCount, Is.EqualTo(18));
+            Assert.That(blackCardCount, Is.EqualTo(18));
+        });
     }
-    
+
     [Test]
     public void TestDeckWithIncorrectCardArraySize_ShouldThrowException()
     {
@@ -37,9 +42,9 @@ public class Tests
             blackCards[i] = new Card(CardColor.Black);
         }
         
+        
         Assert.That(
-            Assert.Throws<ArgumentException>(() => 
-                new Deck { Cards = blackCards.ToImmutableArray() })?.Message, 
+            Assert.Throws<ArgumentException>(() => new Deck(blackCards.ToImmutableArray()))?.Message, 
             Is.EqualTo("firstHalf and secondHalf must be equals 32"));
     }
     
@@ -52,9 +57,9 @@ public class Tests
             blackCards[i] = new Card(CardColor.Black);
         }
         
+        
         Assert.That(
-            Assert.Throws<ArgumentException>(() => 
-                new Deck { Cards = blackCards.ToImmutableArray() })?.Message, 
+            Assert.Throws<ArgumentException>(() => new Deck(blackCards.ToImmutableArray()))?.Message, 
             Is.EqualTo("red cards and black cards must be equals 18"));
     }
     
@@ -86,7 +91,7 @@ public class Tests
         var worker = new SimpleExperimentService(shuffler, firstCard, lastCard);
         
         
-        worker.Run();
+        worker.Run(1);
         
         
         Assert.That(worker.Output, Is.EqualTo(false));

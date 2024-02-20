@@ -1,36 +1,18 @@
 ﻿using ColiseumLibrary.Interfaces;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace GodsApi.Services;
 
-public class GodsHostedService(
-    ILogger<GodsHostedService> logger,
-    IHostApplicationLifetime appLifetime,
-    IExperimentService service 
-    ) : IHostedService
+public class GodsHostedService(IExperimentService service) : IHostedService
 {
-    public Task StartAsync(CancellationToken cancellationToken)
+    public async Task StartAsync(CancellationToken cancellationToken)
     {
-        appLifetime.ApplicationStarted.Register(() =>
+        while (true)
         {
-            try
-            {
-                while (true)
-                {
-                    service.Run();
-                }
-            }
-            catch (Exception e)
-            {
-                logger.LogError(e, "Unhandled exception!");
-            }
-            finally
-            {
-                appLifetime.StopApplication();
-            }
-        });
-        return Task.CompletedTask;
+            var id = Convert.ToInt32(Console.ReadLine());
+            if (id < 1) return;
+            await service.Run(id);
+        }
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;

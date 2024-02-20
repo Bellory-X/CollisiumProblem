@@ -2,5 +2,5 @@
 
 public interface IExperimentService
 {
-    public void Run();
+    public Task Run(int id);
 }

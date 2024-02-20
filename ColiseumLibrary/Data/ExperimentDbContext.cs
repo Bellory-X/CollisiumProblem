@@ -1,11 +1,11 @@
 ﻿using ColiseumLibrary.Model.Experiments;
 using Microsoft.EntityFrameworkCore;
 
-namespace GodsApi.Data;
+namespace ColiseumLibrary.Data;
 
 public sealed class ExperimentDbContext: DbContext
 {
-    public DbSet<ExperimentDbModel> ExperimentDbModels { get; set; } = null!;
+    public DbSet<ExperimentDb> ExperimentDbs { get; set; } = null!;
     public ExperimentDbContext(DbContextOptions<ExperimentDbContext> options) : base(options)
     {
         Database.EnsureDeleted();

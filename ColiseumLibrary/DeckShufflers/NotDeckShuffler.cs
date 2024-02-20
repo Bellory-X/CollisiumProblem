@@ -6,9 +6,5 @@ namespace ColiseumLibrary.DeckShufflers;
 
 public class NotDeckShuffler : IDeckShuffler
 {
-    public Deck Shuffle(Card[] cards)
-    {
-        ArgumentNullException.ThrowIfNull(cards);
-        return new Deck { Cards = cards.ToImmutableArray()};
-    }
+    public Deck Shuffle(Card[] cards) => new(cards.ToImmutableArray());
 }
